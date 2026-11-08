@@ -10,19 +10,26 @@
     "@anthropic-ai/sdk": "^0.71.2",
     "@electric-sql/pglite": "^0.5.15",
     "cfb": "^1.2.2",
+    "fast-xml-parser": "^5.12.0",
     "iconv-lite": "^0.6.3",
     "jszip": "^3.10.1",
+    "leaflet": "^1.9.4",
     "next": "^15.5.6",
     "pg": "^8.23.1",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "topojson-client": "^3.1.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.4",
+    "@types/geojson": "^7946.0.16",
+    "@types/leaflet": "^1.9.22",
     "@types/node": "^22.19.1",
     "@types/pg": "^8.23.1",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
+    "@types/topojson-client": "^3.1.5",
+    "@types/topojson-specification": "^1.0.5",
     "postcss": "^8.5.32",
     "tailwindcss": "^4.3.4",
     "typescript": "^5.9.3"

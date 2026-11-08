@@ -1,6 +1,6 @@
 import { getIdentity } from "../../../cursor/identity";
 import { MODEL } from "../../../lib/schema";
-import { anthropicApiKey, json } from "../../../lib/http";
+import { anthropicApiKey, buildingGeocoderApiKey, buildingRegisterApiKey, json } from "../../../lib/http";
 import { csrfCookieHeader, mintCsrf } from "../../../lib/csrf";
 
 export const runtime = "nodejs";
@@ -19,6 +19,8 @@ export async function GET(request: Request) {
     {
       model: MODEL,
       mock: !hasKey,
+      buildingRegister: Boolean(buildingRegisterApiKey()),
+      buildingGeocoder: Boolean(buildingGeocoderApiKey()),
       viewer,
       signedIn: identity.verified && identity.kind === "person",
       simulated: identity.verified && identity.simulated === true,

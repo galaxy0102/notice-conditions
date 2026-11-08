@@ -38,6 +38,8 @@ type Ctx = {
   simulated: boolean;
   signedIn: boolean;
   viewer: string;
+  buildingRegister: boolean | null;
+  buildingGeocoder: boolean | null;
   csrf: string;
   refreshCsrf: () => Promise<string>;
 };
@@ -58,6 +60,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [simulated, setSimulated] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
   const [viewer, setViewer] = useState("");
+  const [buildingRegister, setBuildingRegister] = useState<boolean | null>(null);
+  const [buildingGeocoder, setBuildingGeocoder] = useState<boolean | null>(null);
   const [csrf, setCsrf] = useState("");
   const [liveMatch, setLiveMatch] = useState<BuildingRecord | null>(null);
   const [resetNonce, setResetNonce] = useState(0);
@@ -71,11 +75,15 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       signedIn?: boolean;
       viewer?: string;
       csrf?: string;
+      buildingRegister?: boolean;
+      buildingGeocoder?: boolean;
     };
     setMock(Boolean(s.mock));
     setSimulated(Boolean(s.simulated));
     setSignedIn(Boolean(s.signedIn));
     setViewer(typeof s.viewer === "string" ? s.viewer : "");
+    setBuildingRegister(Boolean(s.buildingRegister));
+    setBuildingGeocoder(Boolean(s.buildingGeocoder));
     const token = typeof s.csrf === "string" ? s.csrf : "";
     setCsrf(token);
     return token;
@@ -283,6 +291,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       simulated,
       signedIn,
       viewer,
+      buildingRegister,
+      buildingGeocoder,
       csrf,
       refreshCsrf,
     }),
@@ -309,6 +319,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       simulated,
       signedIn,
       viewer,
+      buildingRegister,
+      buildingGeocoder,
       csrf,
       refreshCsrf,
     ],
