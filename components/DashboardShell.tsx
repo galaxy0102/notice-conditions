@@ -6,7 +6,7 @@ import { useDashboard } from "./DashboardProvider";
 import { NoticeAnalysisTab } from "./tabs/NoticeAnalysisTab";
 import { BuildingMatchTab } from "./tabs/BuildingMatchTab";
 import { NoticeReportTab } from "./tabs/NoticeReportTab";
-import { MapPlaceholderTab } from "./tabs/MapPlaceholderTab";
+import { BuildingMapTab } from "./tabs/BuildingMapTab";
 
 export function DashboardShell() {
   const { tab, setTab, mock, simulated, signedIn, viewer, batches, selectedBatch } = useDashboard();
@@ -85,7 +85,7 @@ export function DashboardShell() {
         {tab === "extract" ? <NoticeAnalysisTab /> : null}
         {tab === "compare" ? <BuildingMatchTab /> : null}
         {tab === "report" ? <NoticeReportTab /> : null}
-        {tab === "map" ? <MapPlaceholderTab /> : null}
+        {tab === "map" ? <BuildingMapTab /> : null}
       </main>
     </div>
   );

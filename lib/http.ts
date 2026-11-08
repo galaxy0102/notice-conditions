@@ -71,9 +71,30 @@ export function sameOrigin(request: Request): boolean {
   return trustedHosts(request).has(originHost);
 }
 
+/**
+ * GET from this app. Same-origin fetch often omits Origin; Sec-Fetch-Site and Referer still
+ * identify the page. A cross-site request cannot set Sec-Fetch-Site.
+ */
+export function sameSiteRead(request: Request): boolean {
+  if (sameOrigin(request)) return true;
+  if (request.headers.get("origin")) return false;
+  const site = (request.headers.get("sec-fetch-site") ?? "").trim().toLowerCase();
+  if (site === "same-origin") return true;
+  const refererHost = hostOf(request.headers.get("referer") ?? "");
+  return refererHost != null && trustedHosts(request).has(refererHost);
+}
+
 /** Bracket env read so Next.js cannot inline an empty key at build time. */
 export function anthropicApiKey(): string {
   return (process.env["ANTHROPIC_API_KEY"] ?? "").trim();
+}
+
+export function buildingRegisterApiKey(): string {
+  return (process.env["BUILDING_REGISTER_API_KEY"] ?? "").trim();
+}
+
+export function buildingGeocoderApiKey(): string {
+  return (process.env["BUILDING_GEOCODER_API_KEY"] ?? "").trim();
 }
 
 export function sanitizeName(raw: string): string {
