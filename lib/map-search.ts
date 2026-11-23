@@ -131,7 +131,7 @@ export async function searchMapAddress(query: string, pins: MapPin[], notices: E
   let lng: number | null = null;
   let label = q;
   try {
-    const res = await fetch(`/api/geocode?q=${encodeURIComponent(q)}`);
+    const res = await fetch(`/api/geocode?q=${encodeURIComponent(q)}`, { signal: AbortSignal.timeout(6000) });
     const body = (await res.json()) as { lat?: number; lng?: number; label?: string; error?: string };
     if (res.ok && Number.isFinite(body.lat) && Number.isFinite(body.lng)) {
       lat = body.lat as number;
