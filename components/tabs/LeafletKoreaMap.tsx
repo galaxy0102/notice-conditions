@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import "leaflet/dist/leaflet.css";
+import { KOREA_SIDO } from "@/lib/korea-sido";
 import type { MapPin } from "@/lib/map-model";
 import type { MapFocus } from "@/lib/map-search";
 import type { Verdict } from "@/lib/types";
@@ -33,6 +34,60 @@ function pinHtml(v: Verdict | "none", pulse = false): string {
     return `<span class="nc-pin-mark" style="width:14px;height:14px;background:${s.fill};border:2px solid #fff;transform:rotate(45deg);box-shadow:0 1px 4px rgba(0,0,0,.35);${extra}"></span>`;
   }
   return `<span class="nc-pin-mark" style="width:16px;height:16px;background:${s.fill};border:2px solid #fff;border-radius:999px;box-shadow:0 1px 4px rgba(0,0,0,.35);${extra}"></span>`;
+}
+
+function schematicSido(): SidoCollection {
+  return {
+    type: "FeatureCollection",
+    features: KOREA_SIDO.map((s) => {
+      const ring = s.ring.map(([lat, lng]) => [lng, lat] as [number, number]);
+      const first = ring[0];
+      const last = ring[ring.length - 1];
+      if (first && last && (first[0] !== last[0] || first[1] !== last[1])) ring.push([first[0], first[1]]);
+      return {
+        type: "Feature" as const,
+        properties: { id: s.id, name: s.name },
+        geometry: { type: "Polygon" as const, coordinates: [ring] },
+      };
+    }),
+  };
+}
+
+async function loadSidoGeo(): Promise<SidoCollection> {
+  try {
+    const res = await fetch("/korea-sido.geo.json", { signal: AbortSignal.timeout(4000) });
+    if (!res.ok) return schematicSido();
+    const geo = (await res.json()) as SidoCollection;
+    if (!geo?.features?.length) return schematicSido();
+    return geo;
+  } catch {
+    return schematicSido();
+  }
+}
+
+function attachTiles(L: typeof import("leaflet"), map: import("leaflet").Map) {
+  const layers = [
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      maxZoom: 20,
+      subdomains: "abcd",
+    }),
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 19,
+    }),
+  ];
+  let index = 0;
+  const step = () => {
+    if (!map.getContainer()?.isConnected || index >= layers.length - 1) return;
+    map.removeLayer(layers[index]);
+    index += 1;
+    layers[index].addTo(map);
+    layers[index].once("tileerror", step);
+  };
+  layers[0].addTo(map);
+  layers[0].once("tileerror", step);
 }
 
 function leafletNs(mod: typeof import("leaflet") | { default: typeof import("leaflet") }): typeof import("leaflet") {
@@ -78,10 +133,7 @@ export function LeafletKoreaMap({
     let ro: ResizeObserver | undefined;
 
     void (async () => {
-      const [leafletMod, geo] = await Promise.all([
-        import("leaflet"),
-        fetch("/korea-sido.geo.json").then((r) => r.json() as Promise<SidoCollection>),
-      ]);
+      const [leafletMod, geo] = await Promise.all([import("leaflet"), loadSidoGeo()]);
       if (cancelled || !hostRef.current) return;
       const L = leafletNs(leafletMod);
       LRef.current = L;
@@ -96,23 +148,7 @@ export function LeafletKoreaMap({
       });
       mapRef.current = map;
 
-      const osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19,
-      });
-      const carto = L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        maxZoom: 20,
-        subdomains: "abcd",
-      });
-      osm.addTo(map);
-      osm.on("tileerror", () => {
-        if (map && !map.hasLayer(carto)) {
-          map.removeLayer(osm);
-          carto.addTo(map);
-        }
-      });
+      attachTiles(L, map);
 
       L.geoJSON(geo, {
         style: (feat) => {
