@@ -110,13 +110,13 @@ def to_notice(out: ExtractOut, notice_id: str | None = None, business_type: Busi
     uses: list[str] = []
     for u in out.use_conditions.value:
         t, bad = normalize.use_tokens(u)
-        uses += t
+        uses += t + bad  # 해석 못 한 원문도 남긴다 → 판정에서 확인필요(조건이 사라지지 않게)
         issues += [f"용도 '{b}'를 표준 용도로 바꾸지 못했습니다" for b in bad]
     keep("use_filter", out.use_conditions)
     structs: list[str] = []
     for s in out.structure_conditions.value:
         t, bad = normalize.structure_tokens(s)
-        structs += t
+        structs += t + bad
         issues += [f"구조 '{b}'를 표준 구조로 바꾸지 못했습니다" for b in bad]
     keep("structure_filter", out.structure_conditions)
 

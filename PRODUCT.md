@@ -47,7 +47,7 @@ web
 
 - 조례 조건표: `data/ordinances/`, 정규화 표 `data/ref/`.
 - 검수된 공고: `data/notices/`(사용자가 저장한 서울특별시 공고 1건). 데모 공고는 지웠다.
-- 팀원이 만든 이전 웹앱(Next.js): `frontend_grok/`. 참고용이다.
+- 팀원이 만든 이전 웹앱(Next.js) `frontend_grok/`은 지웠다(489d49a에 남아 있음).
 - 실제 고객, 도입 사례, 이용 후기, 성과 수치는 **없다**. 지어내지 않는다.
 
 ## Product Principles

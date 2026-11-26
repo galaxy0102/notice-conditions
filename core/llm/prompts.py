@@ -1,4 +1,4 @@
-"""프롬프트. 기존 grok 웹앱의 추출 규칙(frontend_grok/lib/schema.ts SYSTEM_PROMPT, 항목 설명)을 옮겼다.
+"""프롬프트. 기존 grok 웹앱의 추출 규칙(frontend_grok/lib/schema.ts SYSTEM_PROMPT, 항목 설명 · 489d49a 이후 삭제)을 옮겼다.
 
 바뀐 점(이유)
 - 사업유형은 별도 분류 단계로 나눴다(신청형 안전점검만 추출·판정하기 위해).

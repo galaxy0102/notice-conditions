@@ -353,7 +353,10 @@ def search_candidates(region_name: str, today: date, session: requests.Session |
         if not url:
             continue  # 웹문서 엔드포인트가 설정되지 않음
         params = {"query": q, "display": display, "start": 1, **cfg.get("extra_params", {}), **extra}
-        r = session.get(url, params=params, headers=headers, timeout=TIMEOUT)
+        try:
+            r = session.get(url, params=params, headers=headers, timeout=TIMEOUT)
+        except requests.RequestException as e:
+            raise HunterError("네이버 검색에 연결하지 못했습니다. 잠시 뒤 다시 시도하세요.") from e
         calls += 1
         if r.status_code in (401, 403):
             raise HunterError("네이버 검색 인증 실패: Client ID·Secret과 NAVER_API_STYLE을 확인하세요.")
@@ -367,7 +370,11 @@ def search_candidates(region_name: str, today: date, session: requests.Session |
             except (ValueError, AttributeError):
                 pass
             raise HunterError(f"네이버 검색 오류(HTTP {r.status_code}{' ' + str(code) if code else ''})")
-        for c in parse_naver(r.json(), kind):
+        try:
+            payload = r.json()
+        except ValueError as e:
+            raise HunterError("네이버 검색 응답을 읽지 못했습니다(JSON 아님).") from e
+        for c in parse_naver(payload, kind):
             seen.setdefault(c.url, c)
     return score_candidates(list(seen.values()), target, today), calls
 

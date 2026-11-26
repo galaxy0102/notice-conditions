@@ -81,7 +81,7 @@ def test_parse_period():
 
 
 def test_migrate_sample_extract():
-    data = json.loads((ROOT / "frontend_grok/lib/sample-extract.json").read_text(encoding="utf-8"))
+    data = json.loads((ROOT / "tests/fixtures/sample-extract.json").read_text(encoding="utf-8"))
     n, issues = migrate_notices.convert(data, "sample")
     assert n.business_type == BusinessType.APPLY_INSPECTION
     assert n.sigungu_codes == ["30140"]  # 대전광역시 중구
@@ -177,3 +177,25 @@ def test_period_status():
     assert NoticeConditions(**base, apply_start=date(2026, 11, 1)).period_status(today)[0] == "UNKNOWN"
     # 날짜 칸이 비어도 원문 기간에서 읽는다
     assert NoticeConditions(**base, application_period="2026. 9. 1. ~ 9. 30.").period_status(today)[0] == "CLOSED"
+
+
+@pytest.mark.parametrize(
+    "text, expected",
+    [
+        ("~ 2026. 7. 31.", (None, date(2026, 7, 31))),
+        ("2026. 7. 31.(금)까지", (None, date(2026, 7, 31))),
+        ("2026. 12. 15. ~ 1. 9.", (date(2026, 12, 15), date(2027, 1, 9))),
+        ("2026. 7. 1.부터", (date(2026, 7, 1), None)),
+    ],
+)
+def test_parse_period_end_only_and_year_crossing(text, expected):
+    assert parse_period(text) == expected
+
+
+@pytest.mark.parametrize("text", ["공동주택 제외", "근린생활시설을 제외한 건축물", "주거용 이외의 건축물"])
+def test_use_exclusion_is_not_read_as_inclusion(text):
+    assert normalize.use_tokens(text) == ([], [text])
+
+
+def test_structure_exclusion_is_not_read_as_inclusion():
+    assert normalize.structure_tokens("조적조 제외") == ([], ["조적조 제외"])

@@ -127,7 +127,10 @@ def render() -> Ctx | None:
 
     eval_date = sb.date_input("판정 기준일", date.today(), format="YYYY-MM-DD")
 
-    all_notices = load_notices()
+    bad: list[str] = []
+    all_notices = load_notices(skipped=bad)
+    for b in bad:
+        sb.warning(f"공고 파일을 읽지 못해 건너뜁니다 · {b}")
     local = notices_for(sgg, all_notices)
     test_mode = sb.checkbox("다른 지역 공고 적용(시험용)", help="결과 전체에 '시험용'이 표시됩니다.")
     pool = all_notices if test_mode else local

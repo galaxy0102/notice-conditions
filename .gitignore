@@ -19,12 +19,6 @@ outputs/
 # 테스트 픽스처 중 실주소가 들어간 대장 응답 (저장소를 공개하면 반드시 제외)
 tests/fixtures/cheongun_title.json
 
-# frontend_grok (Next.js)
-node_modules/
-.next/
-out/
-tsconfig.tsbuildinfo
-
 # 기타
 .DS_Store
 *.log

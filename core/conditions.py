@@ -1,6 +1,6 @@
 """공고 조건표 스키마 (NoticeConditions).
 
-기존 grok 웹앱의 추출 항목(frontend_grok/lib/schema.ts KEYMAP)을 기준으로 하고, 판정에 필요한 필드를 더했다.
+기존 grok 웹앱의 추출 항목(frontend_grok/lib/schema.ts KEYMAP · 489d49a 이후 삭제)을 기준으로 하고, 판정에 필요한 필드를 더했다.
 - 기존 항목 이름은 필드 alias(한국어)로 남겨 legacy JSON도 읽을 수 있게 했다.
 - LLM은 날짜를 원문에서 뽑기만 한다. 마감 여부는 is_expired(today)로 코드가 계산한다.
 - '이하(LE)'와 '미만(LT)'을 엄격히 구분한다.
@@ -213,18 +213,32 @@ _DATE_RE = re.compile(r"(\d{4})\s*[.\-/년]\s*(\d{1,2})\s*[.\-/월]\s*(\d{1,2})"
 def parse_period(text: str | None) -> tuple[date | None, date | None]:
     """'2026. 7. 1. ~ 2026. 7. 31.' → (date, date). 날짜를 못 찾으면 None.
 
-    종료일에 연도가 생략된 '2026. 7. 1. ~ 7. 31.' 형식도 시작 연도로 채운다.
+    종료일에 연도가 생략된 '2026. 7. 1. ~ 7. 31.' 형식도 시작 연도로 채우고, 해를 넘기면('12. 15. ~ 1. 9.') 다음 해로 본다.
+    날짜 하나가 '~' 뒤에 있거나 '까지'가 붙으면 종료일이다('~ 2026. 7. 31.', '2026. 7. 31.까지').
     """
     if not text:
         return None, None
-    found = [date(int(y), int(m), int(d)) for y, m, d in _DATE_RE.findall(text)]
+
+    def make(y: object, m: object, d: object) -> date | None:
+        try:
+            return date(int(y), int(m), int(d))
+        except ValueError:
+            return None
+
+    found = [(make(*mt.groups()), mt) for mt in _DATE_RE.finditer(text)]
+    found = [(d, mt) for d, mt in found if d is not None]
     if len(found) >= 2:
-        return found[0], found[1]
+        return found[0][0], found[1][0]
     if len(found) == 1:
-        start = found[0]
-        rest = text[text.find("~") + 1 :] if "~" in text else ""
-        m = re.search(r"(\d{1,2})\s*[.월]\s*(\d{1,2})", rest)
-        if m:
-            return start, date(start.year, int(m.group(1)), int(m.group(2)))
-        return start, None
+        day, mt = found[0]
+        tilde = text.find("~")
+        if (0 <= tilde < mt.start()) or re.match(r"\s*\.?\s*(\([^)]*\))?\s*까지", text[mt.end():]):
+            return None, day
+        if tilde < 0:
+            return day, None
+        m = re.search(r"(\d{1,2})\s*[.월]\s*(\d{1,2})", text[tilde + 1 :])
+        end = make(day.year, m.group(1), m.group(2)) if m else None
+        if end and end < day:
+            end = make(day.year + 1, end.month, end.day)
+        return day, end
     return None, None

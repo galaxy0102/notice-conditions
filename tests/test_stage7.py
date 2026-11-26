@@ -199,6 +199,7 @@ def test_extract_sources_marks_other_region(hub_env, monkeypatch):
 def test_hunt_without_keys_falls_back(monkeypatch):
     monkeypatch.setattr(nh, "load_dotenv", lambda *a, **k: None)
     monkeypatch.delenv("NAVER_CLIENT_ID", raising=False)
+    monkeypatch.setattr(nh, "load_notices", lambda: [])  # 실제 data/notices에 무엇이 있든 같은 결과
     r = nh.hunt("11110", "서울특별시 종로구", TODAY, has_ordinance=True)
     assert r.stage == "none" and "조례 기준" in r.message and "직접 올려" in r.message
 

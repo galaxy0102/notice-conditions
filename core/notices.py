@@ -16,10 +16,15 @@ from core.conditions import NoticeConditions
 NOTICE_DIR = Path(__file__).resolve().parents[1] / "data" / "notices"
 
 
-def load_notices(directory: Path = NOTICE_DIR) -> list[NoticeConditions]:
+def load_notices(directory: Path = NOTICE_DIR, skipped: list[str] | None = None) -> list[NoticeConditions]:
+    """읽지 못한 파일은 건너뛰고 skipped에 '파일 이름: 사유'를 남긴다(파일 하나 때문에 화면 전체가 멈추지 않게)."""
     out = []
     for p in sorted(directory.glob("*.json")):
-        out.append(NoticeConditions.model_validate_json(p.read_text(encoding="utf-8")))
+        try:
+            out.append(NoticeConditions.model_validate_json(p.read_text(encoding="utf-8")))
+        except (ValueError, OSError) as e:
+            if skipped is not None:
+                skipped.append(f"{p.name}: {str(e).splitlines()[0]}")
     return out
 
 

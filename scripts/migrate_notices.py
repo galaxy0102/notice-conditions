@@ -1,7 +1,7 @@
 """기존 공고 추출 결과(grok 웹앱 형식) → NoticeConditions JSON 변환.
 
 기존 형식: {"공고": ..., "결과": {"지자체": {"value", "evidence"}, "층수": ..., ...}}
-(frontend_grok/lib/types.ts Extracted, lib/schema.ts KEYMAP)
+(489d49a 이후 삭제된 frontend_grok/lib/types.ts Extracted, lib/schema.ts KEYMAP)
 
 사용법 (저장소 루트):
   python scripts/migrate_notices.py                       # data/notices/legacy/*.json → data/notices/*.json

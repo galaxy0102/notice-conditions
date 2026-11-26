@@ -58,7 +58,7 @@ def notice_dir(tmp_path, monkeypatch):
     from core import notices
 
     monkeypatch.setattr(tab_upload, "save_notice", lambda n, overwrite=False: notices.save_notice(n, tmp_path, overwrite))
-    monkeypatch.setattr(sidebar, "load_notices", lambda: notices.load_notices(tmp_path))
+    monkeypatch.setattr(sidebar, "load_notices", lambda **k: notices.load_notices(tmp_path, **k))
     return tmp_path
 
 

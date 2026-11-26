@@ -137,6 +137,7 @@ def normalize_df(df: pd.DataFrame) -> NormalizeResult:
 # ---------------------------------------------------------------- 조건 토큰 (공고·조례 원문 → 표준)
 
 HOUSING_BROAD = "주택"  # 공고가 '주택'이라고만 한 경우. 공동주택 포함 여부 불명
+_EXCLUDE_RE = re.compile(r"제외|이외|외의")  # '공동주택 제외'를 '공동주택만'으로 읽지 않게
 
 
 def use_tokens(text: str) -> tuple[list[str], list[str]]:
@@ -148,6 +149,8 @@ def use_tokens(text: str) -> tuple[list[str], list[str]]:
     t = _key(text)
     if not t:
         return [], []
+    if _EXCLUDE_RE.search(re.sub(r"\(?다가구주택(은|을)?제외\)?", "", t)):
+        return [], [text]  # 다가구주택 제외 말고 다른 '제외'는 해석하지 않는다(판정에서 확인필요)
     tokens: list[str] = []
     if "근린생활시설" in t or "근생" in t:
         # "제1종·제2종", "제1종,제2종", "제1·2종", "제1종및제2종" → 둘 다. 종 언급이 없으면 둘 다.
@@ -179,6 +182,8 @@ def structure_tokens(text: str) -> tuple[list[str], list[str]]:
     t = _key(text)
     if not t:
         return [], []
+    if _EXCLUDE_RE.search(t):
+        return [], [text]
     if t in structure_map():
         return [structure_map()[t]], []
     if re.search(r"조적|벽돌|블[럭록]|연와", t):

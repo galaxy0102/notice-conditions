@@ -205,3 +205,9 @@ def editor(draft: dict) -> None:
         msg = sidebar.apply_region(final.sigungu_codes, final.local_gov or "")
         st.session_state["pending_notice"] = (list(final.sigungu_codes), final.notice_id)  # 작업 화면에서 이 공고로 판정
         st.success(f"검수 완료로 저장했습니다({final.notice_id} · {date.today().isoformat()}). {msg}")
+        st.download_button(
+            "저장한 공고 조건 내려받기(JSON)", final.model_dump_json(indent=2).encode("utf-8"),
+            file_name=path.name, mime="application/json",
+        )
+        st.caption("서버(Streamlit Cloud)에 저장한 파일은 앱이 다시 시작되면 사라집니다. "
+                   "내려받은 파일을 저장소의 data/notices/에 넣어 두세요.")

@@ -84,7 +84,6 @@ tests/
   fixtures/        # 회귀 테스트용 대장 응답·정답 (실주소 포함 시 공개 저장소면 .gitignore)
 scripts/
   legacy/          # 기존 검증 코드 원본 (수정 금지, 참고용) — 아직 미수령
-frontend_grok/     # 팀원 grok 웹앱(Next.js) 원본. 화면 참고용, 수정하지 않는다
 ```
 
 # 작업 방식

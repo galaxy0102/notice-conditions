@@ -28,7 +28,6 @@
 | `core/ordinances.py` | 조례 조건표 `OrdinanceConditions` 로더, 시군구코드 매핑 |
 | `core/normalize.py` | 대장 구조·용도 정규화(`data/ref/structure_map.csv`, `use_map.csv`) |
 | `core/evaluator.py` | 판정 엔진 v2 (CANDIDATE / NEEDS_CHECK / ORDINANCE_ONLY / NOT_ELIGIBLE) |
-| `frontend_grok/` | 팀원 grok 웹앱(Next.js) 원본. 화면 참고용 |
 | legacy 파이썬 코드·정답셋 | **미수령** → [scripts/legacy/README.md](scripts/legacy/README.md). legacy 회귀 테스트는 건너뜀 |
 
 ## 앱 실행
@@ -184,13 +183,6 @@ cp .env.example .env
 
 자세한 컬럼 설명은 [data/ordinances/README.md](data/ordinances/README.md).
 
-## 기존 grok 웹앱 실행 (참고용)
+## 기존 grok 웹앱 (삭제됨)
 
-Streamlit 프로토타입은 받지 못했습니다. 받은 것은 Next.js 웹앱이며 Node.js가 필요합니다.
-
-```bash
-cd frontend_grok && npm install && npm run dev
-```
-
-http://127.0.0.1:3000 에서 열립니다. `ANTHROPIC_API_KEY`가 없으면 샘플 결과로 동작합니다.
-이 앱의 대장 조회는 모의 데이터이고, 주소 검색은 Nominatim을 씁니다(새 시스템에서는 브이월드로 교체).
+팀원 grok 웹앱(Next.js) 원본은 저장소에서 지웠습니다. 보려면 `git checkout 489d49a -- frontend_grok`.

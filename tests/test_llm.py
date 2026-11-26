@@ -686,3 +686,13 @@ def test_analyze_one_call_and_non_inspection():
                        **sample_extract().model_dump())
     c2, r2 = extractor.analyze([Part.of_text("t")], ScriptedProvider("h", [other]), log=False)
     assert r2 is None and c2.business_type == BusinessType.REPAIR_SUPPORT and other.fallback_reason() is None
+
+
+def test_to_notice_keeps_unparsed_use_and_structure():
+    out = sample_extract().model_copy(deep=True)
+    out.use_conditions.value = ["다중이용업소"]
+    out.structure_conditions.value = ["석조"]
+    r = extractor.to_notice(out, "t")
+    # 사라지면 모든 건물이 통과한다 → 원문으로 남겨 판정에서 확인필요가 되게
+    assert r.notice.use_filter == ["다중이용업소"] and r.notice.structure_filter == ["석조"]
+    assert any("다중이용업소" in i for i in r.issues)
